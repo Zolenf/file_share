@@ -16,7 +16,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	blobURL := "https://blob.vercel-storage.com/" + header.Filename
 	req, _ := http.NewRequest("PUT", blobURL, file)
-	token := os.Getenv("BLOB_TOKEN")
+	token := os.Getenv("BLOB_WEBHOOK_PUBLIC_KEY")
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	resp, err := http.DefaultClient.Do(req)
@@ -24,5 +24,5 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Upload do bazy zawiódł", 500)
 		return
 	}
-	http.Error(w, "Upload Przeszedł poprawnie", 200)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

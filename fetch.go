@@ -8,7 +8,7 @@ import (
 
 func FetchHandler(w http.ResponseWriter, r *http.Request) {
 	req, _ := http.NewRequest("GET", "https://blob.vercel-storage.com/", nil)
-	token := os.Getenv("BLOB_TOKEN")
+	token := os.Getenv("BLOB_WEBHOOK_PUBLIC_KEY")
 	req.Header.Set("Authorization", "Bearer "+token)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil || resp.StatusCode != 200 {
