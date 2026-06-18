@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func Handler(w http.ResponseWriter, r *http.Request) {
+func FetchHandler(w http.ResponseWriter, r *http.Request) {
 	req, _ := http.NewRequest("GET", "https://blob.vercel-storage.com/", nil)
 	token := os.Getenv("BLOB_TOKEN")
 	req.Header.Set("Authorization", "Bearer "+token)
@@ -19,5 +19,4 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	io.Copy(w, resp.Body)
-
 }

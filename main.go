@@ -1,4 +1,4 @@
-package fileshare
+package main
 
 import (
 	"log"
@@ -13,6 +13,8 @@ func main() {
 
 	})
 
+	mux.HandleFunc("/api/upload", UploadHandler)
+	mux.HandleFunc("/api/fetch", FetchHandler)
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "3000"

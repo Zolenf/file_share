@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func Handler(w http.ResponseWriter, r *http.Request) {
+func UploadHandler(w http.ResponseWriter, r *http.Request) {
 	file, header, err := r.FormFile("file")
 
 	if err != nil {
@@ -25,5 +25,4 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Error(w, "Upload Przeszedł poprawnie", 200)
-	return
 }

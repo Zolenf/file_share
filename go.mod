@@ -1,3 +1,3 @@
-module file_share
+module main
 
 go 1.24.13
