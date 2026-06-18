@@ -79,7 +79,7 @@ func main() {
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil || resp.StatusCode != 200 {
 			http.Error(w, "Upload do bazy zawiódł", http.StatusInternalServerError)
-			log.Fatal(err : resp.StatusCode)
+			log.Fatal(err, " : ", resp.StatusCode)
 			return
 		}
 
