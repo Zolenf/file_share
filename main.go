@@ -78,7 +78,7 @@ func main() {
 
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil || resp.StatusCode != 200 {
-			http.Error(w, err.Error()+" : "+string(resp.StatusCode), http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
