@@ -36,7 +36,7 @@ const indexHTML = `<!DOCTYPE html>
         <h1>SCI File Share</h1>
         <form action="/api/upload" method="POST" enctype="multipart/form-data">
             <input type="file" name="file" required />
-            <button type="submit">Wrzuć program</button>
+            <button type="submit">Wrzuć plik</button>
         </form>
         <hr>
         <h3>Dostępne pliki:</h3>
