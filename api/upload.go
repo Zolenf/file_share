@@ -1,11 +1,11 @@
-package main
+package handler
 
 import (
 	"net/http"
 	"os"
 )
 
-func UploadHandler(w http.ResponseWriter, r *http.Request) {
+func Upload(w http.ResponseWriter, r *http.Request) {
 	file, header, err := r.FormFile("file")
 
 	if err != nil {

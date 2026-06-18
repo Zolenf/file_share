@@ -1,4 +1,4 @@
-package main
+package handler
 
 import (
 	"io"
@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func FetchHandler(w http.ResponseWriter, r *http.Request) {
+func Fetch(w http.ResponseWriter, r *http.Request) {
 	req, _ := http.NewRequest("GET", "https://blob.vercel-storage.com/", nil)
 	token := os.Getenv("BLOB_WEBHOOK_PUBLIC_KEY")
 	req.Header.Set("Authorization", "Bearer "+token)

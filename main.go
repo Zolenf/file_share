@@ -9,9 +9,7 @@ import (
 func main() {
 	mux := http.NewServeMux()
 
-	// Serwer Go skupia się w 100% na obsłudze ruchu z formularza i bazy
-	mux.HandleFunc("/api/upload", UploadHandler)
-	mux.HandleFunc("/api/fetch", FetchHandler)
+	mux.Handle("/", http.FileServer(http.Dir("public")))
 
 	port := os.Getenv("PORT")
 	if port == "" {
