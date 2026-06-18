@@ -74,7 +74,7 @@ func main() {
 
 		blobURL := "https://blob.vercel-storage.com/" + header.Filename
 		req, _ := http.NewRequest("PUT", blobURL, file)
-		req.Header.Set("Authorization", "Bearer "+os.Getenv("BLOB_TOKEN"))
+		req.Header.Set("Authorization", "Bearer "+os.Getenv("BLOB_WEBHOOK_PUBLIC_KEY"))
 
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil || resp.StatusCode != 200 {
@@ -89,7 +89,7 @@ func main() {
 	// 3. Logika pobierania listy (Fetch)
 	mux.HandleFunc("/api/fetch", func(w http.ResponseWriter, r *http.Request) {
 		req, _ := http.NewRequest("GET", "https://blob.vercel-storage.com/", nil)
-		req.Header.Set("Authorization", "Bearer "+os.Getenv("BLOB_TOKEN"))
+		req.Header.Set("Authorization", "Bearer "+os.Getenv("BLOB_WEBHOOK_PUBLIC_KEY"))
 
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil || resp.StatusCode != 200 {
