@@ -35,8 +35,19 @@ const indexHTML = `<!DOCTYPE html>
         li { background: var(--bg-color); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 0.5rem; }
         .file-title { font-weight: bold; font-size: 1.1rem; }
         .file-desc { font-size: 0.9rem; color: #bac2de; background: rgba(255,255,255,0.05); padding: 0.5rem; border-radius: 4px; }
-        a { color: var(--accent-color); text-decoration: none; word-break: break-all; align-self: flex-start; }
-        a:hover { text-decoration: underline; }
+        
+        .action-buttons { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+        .btn-small { padding: 0.4rem 0.8rem; font-size: 0.9rem; border-radius: 4px; text-decoration: none; text-align: center; border: none; cursor: pointer; font-weight: 600; }
+        .btn-download { background-color: var(--accent-color); color: var(--bg-color); }
+        .btn-view { background-color: #f38ba8; color: #1e1e2e; }
+        .btn-small:hover { opacity: 0.85; }
+
+        /* Style dla modala (wyskakującego okna z tekstem) */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); justify-content: center; align-items: center; }
+        .modal-content { background-color: var(--surface-color); padding: 2rem; border-radius: 12px; width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; border: 1px solid var(--border-color); position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+        .close-btn { position: absolute; top: 1rem; right: 1.5rem; cursor: pointer; color: var(--text-color); font-size: 1.8rem; font-weight: bold; }
+        .close-btn:hover { color: #f38ba8; }
+        pre#modal-text { white-space: pre-wrap; word-break: break-word; color: #a6e3a1; background: var(--bg-color); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); font-family: monospace; }
     </style>
 </head>
 <body>
@@ -44,7 +55,6 @@ const indexHTML = `<!DOCTYPE html>
         <h1>SCI File Share</h1>
         
         <div class="forms-container">
-            <!-- Formularz 1: Pliki -->
             <div class="form-card">
                 <h3>Wyślij Plik</h3>
                 <form action="/api/upload" method="POST" enctype="multipart/form-data">
@@ -55,7 +65,6 @@ const indexHTML = `<!DOCTYPE html>
                 </form>
             </div>
 
-            <!-- Formularz 2: Czysty Tekst -->
             <div class="form-card">
                 <h3>Zapisz Tekst</h3>
                 <form action="/api/upload" method="POST" enctype="multipart/form-data">
@@ -74,7 +83,49 @@ const indexHTML = `<!DOCTYPE html>
         <ul id="file-list"><li>Ładowanie listy...</li></ul>
     </div>
     
+    <!-- Okno modalne do podglądu tekstu -->
+    <div id="textModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h3 id="modal-title" style="margin-top:0; color: var(--accent-color);">Podgląd</h3>
+            <pre id="modal-text">Ładowanie...</pre>
+        </div>
+    </div>
+    
     <script>
+        // Funkcja do pokazywania modala i ładowania tekstu
+        function viewText(url, name) {
+            const modal = document.getElementById('textModal');
+            const modalText = document.getElementById('modal-text');
+            const modalTitle = document.getElementById('modal-title');
+            
+            modal.style.display = 'flex';
+            modalTitle.innerText = name;
+            modalText.innerText = 'Pobieranie zawartości...';
+            
+            fetch(url)
+                .then(res => res.text())
+                .then(text => {
+                    modalText.innerText = text;
+                })
+                .catch(err => {
+                    modalText.innerText = 'Błąd podczas ładowania pliku:\n' + err;
+                });
+        }
+
+        // Zamykanie modala
+        function closeModal() {
+            document.getElementById('textModal').style.display = 'none';
+        }
+
+        // Zamknięcie po kliknięciu poza okienkiem
+        window.onclick = function(event) {
+            const modal = document.getElementById('textModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
         fetch('/api/fetch').then(res => res.json()).then(data => {
             const list = document.getElementById('file-list');
             if (!data.blobs || data.blobs.length === 0) { list.innerHTML = '<li>Brak plików w bazie.</li>'; return; }
@@ -83,12 +134,11 @@ const indexHTML = `<!DOCTYPE html>
                 let realName = p.pathname;
                 let description = '';
                 
-                // Dekodowanie opisu zaszytego w nazwie pliku
                 const separator = '---DESC---';
                 if (p.pathname.includes(separator)) {
                     const parts = p.pathname.split(separator);
                     try {
-                        description = decodeURIComponent(escape(atob(parts[0]))); // Bezpieczne dekodowanie UTF-8 z Base64
+                        description = decodeURIComponent(escape(atob(parts[0])));
                     } catch(e) {
                         description = "Błąd dekodowania opisu";
                     }
@@ -96,10 +146,14 @@ const indexHTML = `<!DOCTYPE html>
                 }
 
                 const descHTML = description ? '<div class="file-desc">' + description + '</div>' : '';
+                
                 return '<li>' +
                        '<span class="file-title">📄 ' + realName + '</span>' +
                        descHTML +
-                       '<a href="'+p.url+'" download>Pobierz / Zobacz</a>' +
+                       '<div class="action-buttons">' +
+                       '<a href="'+p.url+'" download class="btn-small btn-download">Pobierz</a>' +
+                       '<button onclick="viewText(\''+p.url+'\', \''+realName+'\')" class="btn-small btn-view">Podgląd</button>' +
+                       '</div>' +
                        '</li>';
             }).join('');
         }).catch((err) => {
@@ -133,7 +187,6 @@ func main() {
 		var fileReader io.Reader
 		var filename string
 
-		// Obsługa dwóch typów: pliku z dysku lub czystego tekstu
 		if uploadType == "text" {
 			textName := r.FormValue("textName")
 			textContent := r.FormValue("textContent")
@@ -149,7 +202,7 @@ func main() {
 			filename = textName
 			fileReader = strings.NewReader(textContent)
 
-		} else { // uploadType == "file"
+		} else {
 			file, header, err := r.FormFile("file")
 			if err != nil {
 				http.Error(w, "Błąd odczytu pliku z formularza", http.StatusBadRequest)
@@ -161,7 +214,6 @@ func main() {
 			fileReader = file
 		}
 
-		// Kodowanie opisu do Base64 (żeby uniknąć krzaków w URL Vercel Bloba)
 		var finalFilename string
 		if description != "" {
 			encodedDesc := base64.StdEncoding.EncodeToString([]byte(description))
@@ -170,7 +222,6 @@ func main() {
 			finalFilename = filename
 		}
 
-		// Wysyłka do Vercel Blob
 		blobURL := "https://blob.vercel-storage.com/" + finalFilename
 		req, _ := http.NewRequest("PUT", blobURL, fileReader)
 		req.Header.Set("Authorization", "Bearer "+os.Getenv("BLOB_READ_WRITE_TOKEN"))
